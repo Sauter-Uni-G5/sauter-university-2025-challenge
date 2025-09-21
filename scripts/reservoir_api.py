@@ -96,16 +96,15 @@ def records_from_dataframe(df: pd.DataFrame) -> List[Dict[str, Any]]:
         cleaned.append(nr)
     return cleaned
 
-@app.get("/data")
-def get_data(
-    package_id: str = Query(...),
-    ano: Optional[int] = Query(None),
-    mes: Optional[int] = Query(None),
-    nome_reservatorio: Optional[str] = Query(None),
-    start_date: Optional[str] = Query(None),
-    end_date: Optional[str] = Query(None),
-    page: int = Query(1),
-    page_size: int = Query(100)
+def get_reservoir_data(
+    package_id: str,
+    ano: Optional[int],
+    mes: Optional[int],
+    nome_reservatorio: Optional[str],
+    start_date: Optional[str],
+    end_date: Optional[str],
+    page: int,
+    page_size: int
 ):
     try:
         metadata = fetch_package_metadata(package_id)
@@ -129,18 +128,24 @@ def get_data(
 
         df = pd.concat(df_list, ignore_index=True)
 
-        if "ear_data" in df.columns:
-            df["ear_data"] = pd.to_datetime(df["ear_data"], errors="coerce", dayfirst=True)
+        date_col = None
+        for col in ["ear_data", "data", "dt_medicao", "dt"]:
+            if col in df.columns:
+                date_col = col
+                break
+
+        if date_col:
+            df[date_col] = pd.to_datetime(df[date_col], errors="coerce", dayfirst=True)
 
             if start_date and end_date:
-                df = df[(df["ear_data"] >= start_ts) & (df["ear_data"] <= end_ts)]
+                df = df[(df[date_col] >= start_ts) & (df[date_col] <= end_ts)]
             else:
                 if mes:
-                    df = df[(df["ear_data"].dt.year == ano) & (df["ear_data"].dt.month == mes)]
+                    df = df[(df[date_col].dt.year == ano) & (df[date_col].dt.month == mes)]
                 else:
-                    df = df[df["ear_data"].dt.year == ano]
+                    df = df[df[date_col].dt.year == ano]
 
-        if nome_reservatorio:
+        if nome_reservatorio and "nom_reservatorio" in df.columns:
             df = df[df["nom_reservatorio"].astype(str).str.contains(nome_reservatorio, case=False, na=False)]
 
         start_idx = (page - 1) * page_size
@@ -153,3 +158,29 @@ def get_data(
     except Exception as e:
         logging.exception("Erro processando requisição")
         return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.get("/data/ear")
+def get_ear_data(
+    package_id: str = Query(...),
+    ano: Optional[int] = Query(None),
+    mes: Optional[int] = Query(None),
+    nome_reservatorio: Optional[str] = Query(None),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    page: int = Query(1),
+    page_size: int = Query(100)
+):
+    return get_reservoir_data(package_id, ano, mes, nome_reservatorio, start_date, end_date, page, page_size)
+
+@app.get("/data/hydro")
+def get_hydro_data(
+    package_id: str = Query(...),
+    ano: Optional[int] = Query(None),
+    mes: Optional[int] = Query(None),
+    nome_reservatorio: Optional[str] = Query(None),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    page: int = Query(1),
+    page_size: int = Query(100)
+):
+    return get_reservoir_data(package_id, ano, mes, nome_reservatorio, start_date, end_date, page, page_size)
