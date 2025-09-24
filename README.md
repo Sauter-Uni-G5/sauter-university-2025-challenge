@@ -9,16 +9,16 @@ Projeto da Sauter University: AI Specialists Programs. Este projeto consiste em 
 ### API: Data_engineer.
 - Utilizar Python versão 3.10 ou superior.
 - Instalar as bibliotecas listadas no requiriments.txt.
-Comando para rodar a API: uvicorn main:app --reload
-URL padrão: http://127.0.0.1:8000
-Tags e Endpoints:
+- Comando para rodar a API: uvicorn main:app --reload
+- URL padrão: http://127.0.0.1:8000
+### Tags e Endpoints:
  - /api/hydro
  - /api/ear
  - /api/weather
  - /api/registry
  - /api/pipeline
 ### Exemplo de URL
-http://127.0.0.1:8000/api/hydro?package_id=<ID_DO_PACKAGE>&ano=2020&mes=1&page=1&page_size=100
+http://127.0.0.1:8000/api/hydro?package_id=<ID_DO_PACKAGE>&start_date=2020-01-01&end_date=2021-12-31&page=1&page_size=100
 Parametros:
 - package_id (obrigatório): O ID do pacote de dados no ONS.
 - ano (opcional): Ano específico para filtrar os dados.
