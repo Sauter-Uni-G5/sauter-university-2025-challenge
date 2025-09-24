@@ -44,6 +44,17 @@ Parametros:
   "total_pages": 20
 }
 
+##Decisões de arquitetura
+###Engenharia de Dados
+O objetivo do projeto era coletar dados de reservatórios pelo site da ONS e fazer toda a normalização e tratamentos necessários.
+Primeiramente foi criado um endpoint que recebe uma data inicial e final e então faz o donwload temporario dos arquivos .parquet dos anos que foram solicitados, e então transforma estes
+arquivos em um Json para ser enviado pelo endpoint. 
+
+Nós optamos por escolher dois arquivos do sistema da ONS, o EAR(Energia Armazenada dos Reservatórios) e os dados hidrológicos de todos os reservatórios.
+Os dados hidrológicos foram selecionados pois queriamos os dados de volume máximo consistido 
+
+Os dados do Json que foram recebidos são recebidos pelos extractors que transforma a entrada em um Dataframe do pandas, onde os valores muito quebrados são tratados, os
+
 ## Tecnologias Usadas
 
 ### <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" height="40" alt="java logo"/> [Python](https://www.python.org)
